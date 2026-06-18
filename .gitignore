@@ -1,0 +1,42 @@
+# Windows/WSL Zone Identifiers
+*:Zone.Identifier
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+*.egg-info/
+
+# C++ build artifacts
+*.o
+*.a
+*.so
+build/
+cmake-build-*/
+bin/
+log_internal/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*.cmake
+Makefile
+
+# ROS 2 workspace build artifacts
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Notes and concept files
+concepts.md
+mpc_notes.md
+pedal_acc_conversion.md

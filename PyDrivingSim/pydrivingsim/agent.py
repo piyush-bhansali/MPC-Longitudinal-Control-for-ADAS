@@ -152,7 +152,30 @@ class Agent():
 
         if self._node.last_manoeuvre:
             m = self._node.last_manoeuvre
-            self.action = (m.requested_acc, m.requested_steer_whl_ag)
+            pedal = self.__acc_to_pedal(m.requested_acc, float(v.state[3]))
+            self.action = (pedal, m.requested_steer_whl_ag)
+
+    def __acc_to_pedal(self, acc, u):
+        p = self.vehicle.vehicle
+        if acc >= 0:
+            # Throttle: invert  a = (p * n * Tm_max * tau_red * eta_red / R - CAx * u²) / m
+            # Rearranged:        pedal = (m * a + CAx * u²) * R / (n * Tm_max * tau_red * eta_red)
+            Tm_max  = p.motor.maxTorque
+            tau_red = p.transmission.tau_red
+            eta_red = p.transmission.eff_red
+            R       = p.rear_wheel.R
+            m       = p.vehicle.m
+            CAx     = p.vehicle.CAx
+            n       = 2  # rear wheel drive — rr and rl
+            return (m * acc + CAx * u**2) * R / (n * Tm_max * tau_red * eta_red)
+        else:
+            # Brake: invert  a = -(4 * |pedal| * Tb_total * brake_ratio / R) / m
+            # Rearranged:     pedal = -(m * |a| * R) / (4 * Tb_total * brake_ratio)
+            Tb_total     = p.braking_system.totBrakeTorque
+            brake_ratio  = p.braking_system.brakeRatio  # equal front/rear split → per-wheel factor = 0.5
+            R            = p.rear_wheel.R
+            m            = p.vehicle.m
+            return (m * acc * R) / (4 * Tb_total * brake_ratio)
 
     def terminate(self):
         World().loop = 0
